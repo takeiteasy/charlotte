@@ -45,7 +45,8 @@ opts = {
   :headless => false,
   :proxy => nil,
   :selector => nil,
-  :xpath => nil
+  :xpath => nil,
+  :body => false
 }
 OptionParser.new do |o|
   o.banner = " Usage: `echo [TEXT] | #{$0}` or `#{$0} -f [FILE]` or `#{$0} -u [URL]`\n\n Description: A little spider to crawl the web!\n\n"
@@ -90,10 +91,15 @@ OptionParser.new do |o|
   o.on '-x', '--xpath=PATH', String, 'Filter documents with an XML XPath' do |a|
     opts[:xpath] = a
   end
-  # o.on '-a', '--attrs A,B,C', Array, 'Specify any tag attributes to print' do |a|
-  #   opts[:attrs] += a
-  # end
+  o.on '-a', '--attrs A,B,C', Array, 'Specify any tag attributes to print' do |a|
+    opts[:attrs] += a
+  end
+  o.on '-b', '--body', 'When printing a matched result, only print the tag`s body' do
+    opts[:body] = true
+  end
 end.parse!
+
+p opts if opts[:verbose]
 
 def read_stdin(timeout = 0.1)
   # Set STDIN to non-blocking mode
@@ -138,6 +144,7 @@ end
 toparse = []
 
 unless opts[:url].nil?
+  puts "* DOWNLOADING FROM #{opts[:url]} ..." if opts[:verbose]
   if opts[:driver].nil?
     begin
       response = nil
@@ -156,6 +163,7 @@ unless opts[:url].nil?
       response.close if response
     end
   else
+    puts "* USING SELENIUM (#{opts[:driver]}) ..."
     options = case opts[:driver]
               when :chrome
                 Selenium::WebDriver::Options.chrome
@@ -180,6 +188,7 @@ unless opts[:url].nil?
 end
 
 opts[:files].each do |file|
+  puts "* READING FROM FILE #{file} ..."
   begin
     text = File.read(file)
     toparse << text
@@ -191,11 +200,16 @@ opts[:files].each do |file|
 end
 
 text = read_stdin
-toparse << text unless text.nil?
+unless text.nil?
+  toparse << text
+  puts "* FOUND TEXT FROM STDIN ..." if opts[:verbose]
+end
 
 if toparse.empty?
   puts "Nothing to do! Type `ruby #{$0} --help` for usage"
   exit 0
+else
+  puts "* FOUND #{toparse.length} DOCUMENTS TO PARSE" if opts[:verbose]
 end
 
 toparse.each do |p|
