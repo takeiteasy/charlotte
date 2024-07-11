@@ -7,6 +7,10 @@ Charlotte is a little spider that crawls the web. Built with nokogiri + selenium
 
  Description: A little spider to crawl the web!
 
+ Example:
+	ruby charlotte.rb --url http://www.example.com --selector 'p a' --attrs 'href'
+	  => https://www.iana.org/domains/example
+
     -h, --help                       Print help
     -v, --verbose                    Enable verbose logging
     -f, --file A,B,C                 Read document(s) from path(s)
@@ -17,13 +21,17 @@ Charlotte is a little spider that crawls the web. Built with nokogiri + selenium
                                      wait some something on the page to load.
                                      Valid drivers: chrome, edge, firefox, ie, safari
     -H, --headless                   Enable `--headless` for Selenium WebDriver
-    -e, --eager                      Make the Selenium WebDriver use the `eager` page load strategy.
-                                     This will mean Selenium returns when the DOM is ready, but some
-                                     other resources may still be loading.
+    -l, --load-strategy              Specify the page load strategy for Selenium WebDriver.
+                                     Valid strats: `normal`, wait until page fully loads before
+                                     returning. `eager` will wait until the DOM is loaded then
+                                     return, other resources may still be loading. `none` doesn't
+                                     block the WebDriver at all, `--timeout` option is required.
     -t, --timeout=SECONDS            Set the page load timeout when using `--url` (in seconds)
     -p, --proxy=ADDRESS              Set a proxy for Selenium WebDriver
-    -c, --css=SELECTOR               Filter documents with a CSS selector
-    -x, --xpath=PATH                 Filter documents with an XML XPath
+    -s, --selector=SELECTOR          Filter document(s) with a CSS selector
+    -x, --xpath=PATH                 Filter document(s) with an XML XPath
+    -a, --attrs A,B,C                Specify any tag attributes to print
+    -b, --body                       When printing a matched result, only print the tag`s body
 ```
 
 ## About
